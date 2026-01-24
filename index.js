@@ -32,6 +32,11 @@ let notes = [
     id: "3",
     content: "GET and POST are the most important methods of HTTP protocol",
     important: true
+  },
+  {
+    id: "4",
+    content: "Pray for eternal awesomeness",
+    important: true
   }
 ]
 
@@ -82,6 +87,29 @@ let notes = [
     response.json(note)
   })
 
+  app.put('/api/notes/:id', (request, response) => {
+  const id = request.params.id
+  const body = request.body
+
+  // Find the existing note
+  const existingNote = notes.find(n => n.id === id)
+  if (!existingNote) {
+    return response.status(404).json({ error: 'note not found' })
+  }
+
+  // Build updated note (keep old values if not provided)
+  const updatedNote = {
+    ...existingNote,
+    content: body.content ?? existingNote.content,
+    important: body.important ?? existingNote.important,
+  }
+
+  // Replace in the array
+  notes = notes.map(n => n.id === id ? updatedNote : n)
+
+  response.json(updatedNote)
+})
+
 
   const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
@@ -89,7 +117,7 @@ let notes = [
   
   app.use(unknownEndpoint)
   
-  const PORT = process.env.PORT || 3001
+  const PORT = process.env.PORT || 3002
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
