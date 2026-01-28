@@ -62,27 +62,23 @@ app.post('/api/notes', (request, response) => {
 })
 
 // Update
-app.put('/api/notes/:id', (request, response) => {
-  const id = request.params.id
-  const body = request.body
+app.put('/api/notes/:id', (request, response, next) => {
+  const { content, important } = request.body
 
-  // Find the existing note
-  const existingNote = notes.find(n => n.id === id)
-  if (!existingNote) {
-    return response.status(404).json({ error: 'note not found' })
-  }
+  Note.findById(request.params.id)
+    .then(note => {
+      if (!note) {
+        return response.status(404).end()
+      }
 
-  // Build updated note (keep old values if not provided)
-  const updatedNote = {
-    ...existingNote,
-    content: body.content ?? existingNote.content,
-    important: body.important ?? existingNote.important,
-  }
+      note.content = content
+      note.important = important
 
-  // Replace in the array
-  notes = notes.map(n => n.id === id ? updatedNote : n)
-
-  response.json(updatedNote)
+      return note.save().then((updatedNote) => {
+        response.json(updatedNote)
+      })
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/notes/:id', (request, response, next) => {
