@@ -1,0 +1,7 @@
+PUT http://localhost:3002/api/notes/6977dab96be3a4031322a5bb
+Content-Type: application/json
+
+{
+  "content": "Problems can be solved witht he right effort",
+  "important": true
+}   
